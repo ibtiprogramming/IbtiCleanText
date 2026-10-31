@@ -1,0 +1,1227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>CleanText — Strip the Noise. Keep the Signal.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#ffffff;
+    --bg-soft:#f7f8fa;
+    --bg-softer:#f1f3f6;
+    --border:#e4e7ec;
+    --border-2:#d0d5dd;
+    --text:#101828;
+    --text-2:#344054;
+    --muted:#667085;
+    --accent:#2563eb;
+    --accent-soft:#eff4ff;
+    --green:#079455;
+    --green-soft:#ecfdf3;
+    --red:#d92d20;
+    --red-soft:#fef3f2;
+    --violet:#7c3aed;
+    --violet-soft:#f5f3ff;
+    --amber:#b54708;
+    --amber-soft:#fffaeb;
+    --pink:#db2777;
+    --pink-soft:#fdf2f8;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--bg);color:var(--text);
+    font-family:"Inter",ui-sans-serif,-apple-system,"Segoe UI",Roboto,sans-serif;
+    -webkit-font-smoothing:antialiased;min-height:100vh;
+  }
+  .wrap{max-width:1440px;margin:0 auto;padding:28px 24px 80px}
+
+  header{
+    display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+    padding-bottom:24px;margin-bottom:26px;
+    border-bottom:1px solid var(--border);
+  }
+  .logo{
+    width:48px;height:48px;border-radius:14px;display:grid;place-items:center;
+    background:linear-gradient(135deg,#2563eb 0%,#7c3aed 50%,#db2777 100%);
+    color:#fff;font-weight:800;font-size:22px;letter-spacing:-1px;
+    box-shadow:0 4px 14px rgba(37,99,235,.35),0 2px 4px rgba(124,58,237,.25);
+    position:relative;overflow:hidden;
+  }
+  .logo::after{
+    content:"";position:absolute;inset:0;
+    background:linear-gradient(135deg,transparent 30%,rgba(255,255,255,.3) 50%,transparent 70%);
+    transform:translateX(-100%);
+    animation:shine 4s ease-in-out infinite;
+  }
+  @keyframes shine{
+    0%,70%{transform:translateX(-100%)}
+    100%{transform:translateX(100%)}
+  }
+  .brand h1{
+    margin:0;font-size:24px;font-weight:800;letter-spacing:-.03em;
+    background:linear-gradient(135deg,#101828 0%,#2563eb 60%,#7c3aed 100%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .brand p{margin:3px 0 0;font-size:13.5px;color:var(--muted);font-weight:500}
+  .badge{
+    margin-left:auto;font-size:12px;font-weight:700;
+    padding:8px 16px;border-radius:999px;
+    background:linear-gradient(135deg,#eff4ff,#f5f3ff);
+    border:1px solid #c7d2fe;color:#4338ca;
+    display:flex;align-items:center;gap:6px;
+  }
+  .badge::before{
+    content:"";width:7px;height:7px;border-radius:50%;
+    background:#22c55e;box-shadow:0 0 0 3px rgba(34,197,94,.2);
+    animation:pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse{
+    0%,100%{opacity:1}
+    50%{opacity:.5}
+  }
+
+  .grid{display:grid;grid-template-columns:340px minmax(0,1fr);gap:20px;align-items:start}
+  @media(max-width:1080px){.grid{grid-template-columns:1fr}}
+
+  .panel{
+    border:1px solid var(--border);border-radius:14px;background:var(--bg);
+    padding:18px;box-shadow:0 1px 3px rgba(16,24,40,.04);
+  }
+  .panel + .panel{margin-top:16px}
+
+  .panel-head{display:flex;align-items:center;gap:8px;margin-bottom:13px}
+  .panel-head h2{
+    margin:0;font-size:11.5px;font-weight:700;letter-spacing:.08em;
+    text-transform:uppercase;color:var(--muted);
+  }
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--accent)}
+  .dot.green{background:var(--green)}
+  .dot.red{background:var(--red)}
+  .dot.violet{background:var(--violet)}
+  .dot.pink{background:var(--pink)}
+
+  textarea{
+    width:100%;min-height:130px;resize:vertical;
+    font-family:"JetBrains Mono",ui-monospace,monospace;font-size:12.5px;line-height:1.65;
+    padding:12px 13px;border-radius:10px;border:1px solid var(--border-2);
+    background:var(--bg-soft);color:var(--text);outline:none;
+    transition:border-color .15s, box-shadow .15s, background .15s;
+  }
+  textarea:focus{
+    background:#fff;border-color:var(--accent);
+    box-shadow:0 0 0 3px rgba(37,99,235,.12);
+  }
+  textarea::placeholder{color:#98a2b3}
+
+  label.field{display:block;margin-bottom:12px}
+  label.field > span{
+    display:block;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;
+    font-weight:700;color:var(--muted);margin-bottom:6px;
+  }
+  select{
+    width:100%;padding:10px 12px;border-radius:9px;border:1px solid var(--border-2);
+    background:#fff;color:var(--text);font-family:inherit;font-size:13px;
+    cursor:pointer;outline:none;transition:.15s;
+  }
+  select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(37,99,235,.12)}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+  .toggle{
+    display:flex;align-items:center;gap:9px;cursor:pointer;user-select:none;
+    font-size:13px;color:var(--text-2);font-weight:500;
+    padding:9px 12px;border-radius:9px;border:1px solid var(--border);
+    background:var(--bg-soft);transition:.15s;margin-bottom:8px;
+  }
+  .toggle:hover{border-color:var(--border-2)}
+  .toggle input{display:none}
+  .toggle i{
+    width:34px;height:19px;border-radius:99px;background:#d0d5dd;position:relative;transition:.2s;flex:0 0 auto;
+  }
+  .toggle i::after{
+    content:"";position:absolute;top:2px;left:2px;width:15px;height:15px;border-radius:50%;
+    background:#fff;transition:.2s;box-shadow:0 1px 2px rgba(0,0,0,.2);
+  }
+  .toggle input:checked + i{background:var(--green)}
+  .toggle input:checked + i::after{left:17px}
+
+  .controls{display:flex;gap:9px;flex-wrap:wrap;margin-top:12px}
+  .btn{
+    cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;
+    padding:10px 16px;border-radius:9px;border:none;
+    background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;transition:.15s;
+    box-shadow:0 2px 6px rgba(37,99,235,.25);
+  }
+  .btn:hover{box-shadow:0 4px 12px rgba(37,99,235,.35);transform:translateY(-1px)}
+  .btn:active{transform:scale(.98)}
+  .btn-ghost{
+    background:#fff;color:var(--text-2);border:1px solid var(--border-2);
+    box-shadow:0 1px 2px rgba(16,24,40,.04);
+  }
+  .btn-ghost:hover{background:var(--bg-soft);box-shadow:0 2px 6px rgba(16,24,40,.08)}
+  .btn-sm{padding:7px 13px;font-size:12px}
+
+  .stage-row{
+    display:flex;justify-content:space-between;gap:10px;
+    font-family:"JetBrains Mono",monospace;font-size:11.5px;
+    padding:5px 0;border-bottom:1px dashed var(--border);
+  }
+  .stage-row:last-child{border-bottom:none}
+  .stage-row .k{color:var(--muted)}
+  .stage-row .v{color:var(--text);font-weight:600}
+
+  /* protection notice */
+  .protect-note{
+    display:flex;align-items:flex-start;gap:9px;
+    padding:10px 12px;border-radius:10px;
+    background:linear-gradient(135deg,#fffaeb,#fef3f2);
+    border:1px solid #fedf89;
+    font-size:12px;color:#b54708;line-height:1.55;
+    margin-bottom:12px;
+  }
+  .protect-note b{color:#93370d}
+  .protect-note .ico{
+    flex:0 0 auto;width:18px;height:18px;border-radius:50%;
+    background:#f79009;color:#fff;display:grid;place-items:center;
+    font-size:11px;font-weight:800;margin-top:1px;
+  }
+
+  .stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:18px}
+  @media(max-width:900px){.stats{grid-template-columns:repeat(2,1fr)}}
+  .stat{
+    border:1px solid var(--border);border-radius:12px;padding:13px 15px;background:var(--bg-soft);
+    position:relative;overflow:hidden;
+  }
+  .stat::before{
+    content:"";position:absolute;top:0;left:0;right:0;height:2px;
+    background:linear-gradient(90deg,var(--accent),var(--violet));
+  }
+  .stat.green::before{background:linear-gradient(90deg,#079455,#22c55e)}
+  .stat.red::before{background:linear-gradient(90deg,#d92d20,#f97066)}
+  .stat.amber::before{background:linear-gradient(90deg,#b54708,#f79009)}
+  .stat b{display:block;font-size:23px;font-weight:800;letter-spacing:-.03em;line-height:1;color:var(--text);font-variant-numeric:tabular-nums}
+  .stat span{display:block;margin-top:6px;font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+  .stat.green b{color:var(--green)}
+  .stat.red b{color:var(--red)}
+  .stat.amber b{color:var(--amber)}
+
+  .tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+  .tab{
+    cursor:pointer;font-size:12px;font-weight:600;
+    padding:8px 14px;border-radius:8px;
+    border:1px solid var(--border);background:var(--bg-soft);color:var(--text-2);
+    transition:.15s;user-select:none;
+  }
+  .tab:hover{background:#fff;border-color:var(--border-2);transform:translateY(-1px)}
+  .tab.on{
+    background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;border-color:transparent;
+    box-shadow:0 2px 8px rgba(37,99,235,.3);
+  }
+  .tab .count{
+    display:inline-block;margin-left:6px;font-size:10.5px;font-weight:700;
+    padding:1px 6px;border-radius:99px;background:rgba(255,255,255,.2);
+  }
+  .tab:not(.on) .count{background:var(--red-soft);color:var(--red)}
+
+  .clean-block{
+    border:1px solid #abefc6;border-radius:16px;
+    background:linear-gradient(135deg,#ecfdf3 0%,#f0fdf9 100%);
+    padding:22px;margin-bottom:18px;
+    position:relative;overflow:hidden;
+    box-shadow:0 4px 20px rgba(7,148,85,.08);
+  }
+  .clean-block::before{
+    content:"";position:absolute;top:-50%;right:-10%;width:300px;height:300px;
+    background:radial-gradient(circle,rgba(7,148,85,.08) 0%,transparent 70%);
+    pointer-events:none;
+  }
+  .clean-block .lbl{
+    font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--green);margin-bottom:12px;display:flex;align-items:center;gap:8px;
+    position:relative;z-index:1;flex-wrap:wrap;
+  }
+  .clean-block .lbl .chip{
+    margin-left:auto;font-size:11px;font-weight:700;
+    padding:3px 10px;border-radius:99px;background:#fff;border:1px solid #abefc6;color:var(--green);
+  }
+  .clean-block .lbl .protect-chip{
+    margin-left:0;font-size:10.5px;font-weight:700;
+    padding:3px 10px;border-radius:99px;
+    background:#fff;border:1px solid #fedf89;color:#b54708;
+    display:inline-flex;align-items:center;gap:5px;
+  }
+  .clean-block .lbl .protect-chip::before{
+    content:"🔒";font-size:10px;
+  }
+  .clean-block .out{
+    font-size:20px;line-height:1.7;color:var(--text);font-weight:600;
+    word-spacing:.04em;letter-spacing:-.01em;
+    position:relative;z-index:1;
+  }
+  .clean-block .out .w{
+    display:inline-block;padding:0 3px;border-radius:5px;transition:all .15s;
+  }
+  .clean-block .out .w:hover{
+    background:rgba(7,148,85,.14);transform:translateY(-1px);
+  }
+  .clean-block .out .w.neg{
+    background:rgba(181,71,8,.12);color:#b54708;font-weight:800;
+    box-shadow:inset 0 0 0 1px rgba(181,71,8,.2);
+  }
+  .clean-block .out .w.neg:hover{background:rgba(181,71,8,.2)}
+  .clean-block .out.empty{color:var(--muted);font-size:14px;font-style:italic;font-weight:400}
+
+  .sentence{
+    border:1px solid var(--border);border-radius:12px;background:var(--bg);
+    padding:14px 16px;margin-bottom:10px;
+    transition:box-shadow .15s;
+  }
+  .sentence:hover{box-shadow:0 2px 8px rgba(16,24,40,.06)}
+  .sentence .head{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-bottom:10px}
+  .sentence .num{
+    font-family:"JetBrains Mono",monospace;font-size:10px;font-weight:600;color:var(--muted);
+    background:var(--bg-softer);border:1px solid var(--border);padding:2px 7px;border-radius:5px;
+  }
+  .sentence .txt{font-size:14px;color:var(--text);flex:1 1 200px;min-width:0;font-weight:500}
+  .sentence .meta{font-family:"JetBrains Mono",monospace;font-size:10.5px;color:var(--muted);white-space:nowrap}
+
+  .tokline{display:flex;gap:5px;flex-wrap:wrap}
+  .tok{
+    display:inline-flex;align-items:baseline;gap:5px;
+    border:1px solid var(--border);border-radius:7px;
+    padding:3px 8px;background:#fff;
+    font-family:"JetBrains Mono",monospace;font-size:11.5px;color:var(--text);
+    line-height:1.3;transition:.12s;
+  }
+  .tok:hover{transform:translateY(-1px);box-shadow:0 2px 4px rgba(16,24,40,.08)}
+  .tok .pos{
+    font-size:8.5px;letter-spacing:.06em;font-weight:700;text-transform:uppercase;
+    padding:1px 5px;border-radius:3px;background:var(--bg-softer);color:var(--muted);
+  }
+  .tok.stop{opacity:.45;text-decoration:line-through;text-decoration-color:#d0d5dd}
+  .tok.removed{
+    opacity:.9;text-decoration:line-through;text-decoration-color:rgba(217,45,32,.5);
+    background:var(--red-soft);border-color:#fecdca;color:var(--red);
+  }
+  .tok.removed .pos{background:rgba(217,45,32,.12);color:var(--red)}
+  .tok.neg{
+    background:var(--amber-soft);border-color:#fedf89;color:var(--amber);font-weight:700;
+  }
+  .tok.neg .pos{background:rgba(181,71,8,.12);color:var(--amber)}
+  .tok.neg::after{
+    content:"🔒";font-size:9px;margin-left:2px;
+  }
+  .tok[data-pos="NOUN"] .pos{background:#ecfdf3;color:#079455}
+  .tok[data-pos="VERB"] .pos{background:#eff4ff;color:#2563eb}
+  .tok[data-pos="ADJ"]  .pos{background:#fdf2f8;color:#db2777}
+  .tok[data-pos="ADV"]  .pos{background:#f5f3ff;color:#7c3aed}
+  .tok[data-pos="NUM"]  .pos{background:#fffaeb;color:#b54708}
+  .tok[data-pos="PROPN"] .pos{background:#fef3f2;color:#b42318}
+  .tok[data-pos="DET"]  .pos,
+  .tok[data-pos="ADP"]  .pos,
+  .tok[data-pos="PRON"] .pos,
+  .tok[data-pos="CONJ"] .pos,
+  .tok[data-pos="AUX"]  .pos{background:var(--bg-softer);color:var(--muted)}
+
+  .removedline{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px;padding-top:8px;border-top:1px dashed var(--border)}
+  .removedline .lbl{
+    font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--red);
+    font-weight:700;padding:3px 0;min-width:60px;
+  }
+
+  .filtered-sentence{
+    border:1px solid var(--border);border-radius:12px;background:var(--bg);
+    padding:14px 16px;margin-bottom:10px;transition:box-shadow .15s;
+  }
+  .filtered-sentence:hover{box-shadow:0 2px 8px rgba(16,24,40,.06)}
+  .filtered-sentence .orig{
+    font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--muted);
+    line-height:1.6;margin-bottom:6px;text-decoration:line-through;text-decoration-color:#d0d5dd;
+  }
+  .filtered-sentence .arrow{
+    font-size:10.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--green);margin-bottom:5px;display:flex;align-items:center;gap:4px;
+  }
+  .filtered-sentence .out{font-size:15.5px;font-weight:600;color:var(--text);line-height:1.55}
+  .filtered-sentence .out .neg{color:var(--amber);font-weight:800}
+  .filtered-sentence .out.empty{color:var(--muted);font-weight:400;font-style:italic;font-size:13.5px}
+  .filtered-sentence .removed{margin-top:8px;font-size:12px;color:var(--muted)}
+  .filtered-sentence .removed b{color:var(--red);font-weight:600}
+  .filtered-sentence .removed .rw{
+    font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--red);
+    background:var(--red-soft);padding:1px 6px;border-radius:4px;margin:0 2px;
+    text-decoration:line-through;text-decoration-color:rgba(217,45,32,.5);
+  }
+  .filtered-sentence .head{display:flex;align-items:center;gap:9px;margin-bottom:9px}
+
+  .tablewrap{
+    overflow:auto;max-height:66vh;border-radius:12px;border:1px solid var(--border);background:#fff;
+  }
+  table.matrix{border-collapse:separate;border-spacing:0;width:100%;font-size:12.5px}
+  table.matrix thead th{
+    position:sticky;top:0;z-index:3;background:var(--bg-soft);
+    padding:10px 12px;font-size:10px;letter-spacing:.06em;text-transform:uppercase;
+    font-weight:700;color:var(--muted);text-align:center;white-space:nowrap;
+    border-bottom:1px solid var(--border-2);border-right:1px solid var(--border);
+  }
+  table.matrix thead th .w{display:block;font-size:11.5px;letter-spacing:0;text-transform:none;color:var(--text);font-weight:600;margin-bottom:2px}
+  table.matrix thead th .c{display:block;font-size:9.5px;color:#98a2b3;font-weight:500}
+  table.matrix thead th.protect{background:#fffaeb}
+  table.matrix thead th.protect .w{color:var(--amber)}
+  table.matrix tbody th.corner{
+    position:sticky;left:0;z-index:2;background:#fff;text-align:left;padding:10px 12px;
+    border-right:1px solid var(--border-2);border-bottom:1px solid var(--border);
+    white-space:nowrap;font-weight:500;box-shadow:2px 0 6px -4px rgba(0,0,0,.1);
+  }
+  table.matrix thead th.corner{left:0;z-index:4;text-align:left}
+  .idx{display:inline-block;min-width:22px;font-family:"JetBrains Mono",monospace;font-size:10px;font-weight:700;color:var(--muted)}
+  .preview{font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--text-2);max-width:200px;overflow:hidden;text-overflow:ellipsis;display:inline-block;vertical-align:middle}
+  table.matrix tbody td{
+    padding:10px 12px;text-align:center;font-family:"JetBrains Mono",monospace;
+    font-size:12.5px;font-weight:500;font-variant-numeric:tabular-nums;
+    border-bottom:1px solid var(--border);border-right:1px solid var(--border);
+  }
+  table.matrix tbody tr:hover td{background:var(--bg-soft)}
+  table.matrix tbody tr:last-child td,
+  table.matrix tbody tr:last-child th.corner{border-bottom:none}
+  table.matrix tfoot th,table.matrix tfoot td{
+    position:sticky;bottom:0;z-index:2;background:var(--bg-soft);
+    padding:10px 12px;text-align:center;font-family:"JetBrains Mono",monospace;
+    font-size:11px;font-weight:700;color:var(--text);
+    border-top:1px solid var(--border-2);border-right:1px solid var(--border);
+  }
+  table.matrix tfoot th.corner{
+    left:0;z-index:3;text-align:left;font-family:inherit;font-size:9.5px;
+    letter-spacing:.08em;text-transform:uppercase;color:var(--muted);
+  }
+  table.matrix td.zero{color:#c0c6d0}
+
+  .legend{display:flex;align-items:center;gap:12px;margin-top:12px;flex-wrap:wrap;
+    font-size:11px;font-weight:600;color:var(--muted)}
+  .legend .bar{flex:1 1 140px;height:7px;border-radius:99px;min-width:100px;
+    background:linear-gradient(90deg,#eff4ff,#2563eb)}
+  .legend .protect-legend{
+    display:inline-flex;align-items:center;gap:5px;
+    padding:3px 9px;border-radius:6px;background:var(--amber-soft);
+    border:1px solid #fedf89;color:var(--amber);font-size:10.5px;font-weight:700;
+  }
+
+  .chipwrap{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+  .chip-rem{
+    font-family:"JetBrains Mono",monospace;font-size:11.5px;color:var(--red);
+    background:var(--red-soft);border:1px solid #fecdca;padding:3px 9px;border-radius:6px;
+    text-decoration:line-through;text-decoration-color:rgba(217,45,32,.5);
+  }
+  .chip-rem .n{font-style:normal;text-decoration:none;color:#b42318;margin-left:5px;font-size:10.5px}
+  .chip-stop{
+    font-family:"JetBrains Mono",monospace;font-size:11.5px;color:var(--text-2);
+    background:var(--bg-soft);border:1px solid var(--border);padding:3px 9px;border-radius:6px;
+  }
+  .chip-stop.neg{
+    color:var(--amber);background:var(--amber-soft);border-color:#fedf89;
+    font-weight:700;
+  }
+  .chip-stop.neg::after{content:" 🔒";font-size:9px}
+
+  .poslegend{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}
+  .poslegend .lg{
+    font-size:9.5px;letter-spacing:.06em;font-weight:700;text-transform:uppercase;
+    padding:3px 8px;border-radius:5px;border:1px solid var(--border);
+    background:var(--bg-soft);color:var(--muted);
+  }
+  .poslegend .lg.removed{color:var(--red);border-color:#fecdca;background:var(--red-soft)}
+  .poslegend .lg.neg{color:var(--amber);border-color:#fedf89;background:var(--amber-soft)}
+
+  .empty-state{
+    text-align:center;padding:50px 24px;color:var(--muted);
+    font-size:14px;line-height:1.7;border:1px dashed var(--border-2);
+    border-radius:12px;background:var(--bg-soft);
+  }
+  .empty-state b{color:var(--text)}
+
+  footer{margin-top:36px;text-align:center;font-size:12.5px;color:#98a2b3}
+  footer b{color:var(--text-2);font-weight:600}
+
+  .copy-flash{
+    position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(20px);
+    background:var(--text);color:#fff;font-size:13px;font-weight:600;
+    padding:11px 22px;border-radius:10px;opacity:0;pointer-events:none;
+    transition:.25s;z-index:50;box-shadow:0 8px 24px rgba(0,0,0,.2);
+  }
+  .copy-flash.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="logo">C</div>
+    <div class="brand">
+      <h1>CleanText</h1>
+      <p>Strip the noise. Keep the signal.</p>
+    </div>
+    <span class="badge">100% in your browser</span>
+  </header>
+
+  <div class="grid">
+
+    <aside>
+      <section class="panel">
+        <div class="panel-head"><span class="dot"></span><h2>Source text</h2></div>
+        <label class="field">
+          <span>Your text</span>
+          <textarea id="text" spellcheck="false">I feel happy and excited amused and motivated, but I am not tired.
+The quick brown fox jumps over the lazy dog. It was a sunny morning in the quiet valley.
+Machine learning models turn words into vectors of numbers. Neural networks never stop learning.
+The dog barked at the cat and ran across the garden. I am not sure, but nothing was wrong.</textarea>
+        </label>
+
+        <div class="row2">
+          <label class="field" style="margin-bottom:12px">
+            <span>Segment</span>
+            <select id="split">
+              <option value="sentence">Sentences</option>
+              <option value="line">Lines</option>
+              <option value="blank">Blank lines</option>
+            </select>
+          </label>
+          <label class="field" style="margin-bottom:12px">
+            <span>Matrix values</span>
+            <select id="mode">
+              <option value="count">Raw counts</option>
+              <option value="binary">0 / 1</option>
+              <option value="tfidf">TF-IDF</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="protect-note">
+          <span class="ico">!</span>
+          <span><b>Negations are protected.</b> Words like <i>not, no, never, nor, none, nothing, nobody, neither, nowhere</i> are always kept — removing them flips meaning.</span>
+        </div>
+
+        <label class="toggle">
+          <input type="checkbox" id="stop" checked />
+          <i></i>
+          Remove stop words
+        </label>
+        <label class="toggle">
+          <input type="checkbox" id="lemmatize" />
+          <i></i>
+          Light stemming
+        </label>
+        <label class="toggle" style="margin-bottom:12px">
+          <input type="checkbox" id="showPos" checked />
+          <i></i>
+          Show POS tags
+        </label>
+
+        <div class="controls">
+          <button class="btn" id="run">Run pipeline</button>
+          <button class="btn btn-ghost" id="copyClean">Copy clean</button>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head"><span class="dot violet"></span><h2>Pipeline</h2></div>
+        <div id="pipeline"></div>
+      </section>
+    </aside>
+
+    <section>
+      <div class="stats" id="stats"></div>
+
+      <div class="clean-block">
+        <div class="lbl">
+          <span>Cleaned text — stop words removed</span>
+          <span class="protect-chip" id="protectChip">0 negations kept</span>
+          <span class="chip" id="keptChip">0 words</span>
+        </div>
+        <div class="out" id="cleanOutput"></div>
+      </div>
+
+      <div class="panel">
+        <div class="tabs" id="tabs">
+          <div class="tab on" data-view="tokens">Tokens &amp; POS</div>
+          <div class="tab" data-view="filtered">Filtered</div>
+          <div class="tab" data-view="matrix">Matrix</div>
+          <div class="tab" data-view="vocab">Vocabulary</div>
+          <div class="tab" data-view="removed">Removed <span class="count" id="removedCount">0</span></div>
+          <div class="tab" data-view="stoplist">Stop list</div>
+        </div>
+        <div id="view"></div>
+      </div>
+    </section>
+
+  </div>
+
+  <footer>Built with <b>CleanText</b> — every stage runs on your device</footer>
+</div>
+
+<div class="copy-flash" id="flash">Copied to clipboard</div>
+
+<script>
+/* =========================================================
+   CLEANTEXT — full NLP pipeline
+   ========================================================= */
+const $ = id => document.getElementById(id);
+const els = {
+  text: $("text"), split: $("split"), mode: $("mode"),
+  stop: $("stop"), lemmatize: $("lemmatize"), showPos: $("showPos"),
+  run: $("run"), copyClean: $("copyClean"),
+  tabs: $("tabs"), view: $("view"), stats: $("stats"), pipeline: $("pipeline"),
+  cleanOutput: $("cleanOutput"), keptChip: $("keptChip"), removedCount: $("removedCount"),
+  protectChip: $("protectChip")
+};
+
+/* ---------- PROTECTED NEGATIONS — never removed ---------- */
+const PROTECTED_NEGATIONS = new Set([
+  "not", "no", "never", "nor", "none", "nothing", "nobody",
+  "neither", "nowhere", "cannot", "n't", "without", "hardly", "barely", "scarcely"
+]);
+
+/* ---------- stop words — negations excluded ---------- */
+const STOPWORDS = new Set(("a about above after again against all am an and any are aren't as at be because been " +
+  "before being below between both but by can can't could couldn't did didn't do does doesn't doing don't " +
+  "down during each few for from further had hadn't has hasn't have haven't having he he'd he'll he's her here " +
+  "here's hers herself him himself his how how's i i'd i'll i'm i've if in into is isn't it it's its itself " +
+  "let's me more most mustn't my myself of off on once only or other ought our ours ourselves out " +
+  "over own same shan't she she'd she'll she's should shouldn't so some such than that that's the their theirs " +
+  "them themselves then there there's these they they'd they'll they're they've this those through to too under " +
+  "until up very was wasn't we we'd we'll we're we've were weren't what what's when when's where where's which " +
+  "while who who's whom why why's with won't would wouldn't you you'd you'll you're you've your yours yourself " +
+  "yourselves").split(" ").filter(w => !PROTECTED_NEGATIONS.has(w)));
+
+const POS_LEX = {
+  DET: new Set("the a an this that these those my your his her its our their some any no every each".split(" ")),
+  PRON: new Set("i you he she it we they me him her us them myself yourself himself herself itself ourselves themselves who whom whose which what".split(" ")),
+  AUX: new Set("is are was were be been being am has have had do does did can could will would shall should may might must".split(" ")),
+  ADP: new Set("in on at by for with about against between into through during before after above below to from up down out off over under again further then once without".split(" ")),
+  CONJ: new Set("and or but nor so yet for because although though while whereas if unless since".split(" ")),
+  ADV: new Set("very really quite too also just only even still already almost always never often sometimes rarely here there now then soon later well fast slowly quickly today yesterday tomorrow not hardly barely scarcely".split(" ")),
+  ADJ: new Set("quick brown lazy sunny quiet large small big little good bad great new old young warm cold hot beautiful ugly happy sad important different same easy hard simple complex fast slow amused excited motivated tired overwhelmed".split(" ")),
+  NUM: new Set("one two three four five six seven eight nine ten hundred thousand million first second third".split(" ")),
+  NEG: new Set("not no never nor none nothing nobody neither nowhere cannot n't without hardly barely scarcely".split(" ")),
+  VERB_SUFFIX: ["ing","ed","es","s"],
+};
+
+function guessPOS(word, prevWord){
+  const w = word.toLowerCase();
+  if (POS_LEX.NEG.has(w)) return "NEG";
+  if (POS_LEX.DET.has(w)) return "DET";
+  if (POS_LEX.PRON.has(w)) return "PRON";
+  if (POS_LEX.AUX.has(w)) return "AUX";
+  if (POS_LEX.ADP.has(w)) return "ADP";
+  if (POS_LEX.CONJ.has(w)) return "CONJ";
+  if (POS_LEX.ADV.has(w)) return "ADV";
+  if (POS_LEX.ADJ.has(w)) return "ADJ";
+  if (POS_LEX.NUM.has(w) || /^\d+(\.\d+)?$/.test(w)) return "NUM";
+  if (/^[A-Z][a-z]+$/.test(word) && prevWord !== undefined) return "PROPN";
+  if (POS_LEX.VERB_SUFFIX.some(suf => w.length > suf.length + 2 && w.endsWith(suf))) return "VERB";
+  if (w.endsWith("ly") && w.length > 4) return "ADV";
+  if (w.endsWith("ous") || w.endsWith("ful") || w.endsWith("ive") || w.endsWith("able") || w.endsWith("ible")) return "ADJ";
+  if (w.endsWith("tion") || w.endsWith("ness") || w.endsWith("ment") || w.endsWith("ity")) return "NOUN";
+  return "NOUN";
+}
+
+function lightStem(w){
+  if (PROTECTED_NEGATIONS.has(w)) return w;
+  if (w.length <= 3) return w;
+  if (w.endsWith("ing") && w.length > 5) return w.slice(0, -3);
+  if (w.endsWith("ies") && w.length > 4) return w.slice(0, -3) + "y";
+  if (w.endsWith("es")  && w.length > 4) return w.slice(0, -2);
+  if (w.endsWith("ed")  && w.length > 4) return w.slice(0, -2);
+  if (w.endsWith("s")   && !w.endsWith("ss") && w.length > 3) return w.slice(0, -1);
+  return w;
+}
+
+function tokenize(text){
+  const norm = text.toLowerCase().replace(/[\u2018\u2019]/g, "'");
+  const raw = norm.match(/[\p{L}\p{N}][\p{L}\p{N}'\-]*/gu) || [];
+  return raw.map(w => w.replace(/^['\-]+|['\-]+$/g, "")).filter(Boolean);
+}
+
+function splitDocs(raw, mode){
+  let parts;
+  if (mode === "blank")        parts = raw.split(/\n\s*\n/);
+  else if (mode === "line")    parts = raw.split(/\n/);
+  else                          parts = raw.split(/(?<=[.!?…])\s+|\n+/);
+  return parts.map(s => s.trim()).filter(Boolean);
+}
+
+function esc(s){
+  return String(s).replace(/[&<>"']/g, c =>
+    ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+}
+function fmtNum(v, mode){
+  if (mode === "count")  return String(v);
+  if (mode === "binary") return v ? "1" : "0";
+  if (v === 0) return "0";
+  const s = v.toFixed(3).replace(/0+$/, "").replace(/\.$/, "");
+  return s === "" || s === "-" ? "0" : s;
+}
+function cellStyle(v, max){
+  if (v === 0) return "";
+  const r = max > 0 ? Math.min(1, v / max) : 1;
+  const a = (0.08 + r * 0.75).toFixed(3);
+  return `background:rgba(37,99,235,${a});color:${r > .6 ? '#fff' : 'var(--text)'}`;
+}
+function posColor(p){
+  return { NOUN:"#079455", VERB:"#2563eb", ADJ:"#db2777", ADV:"#7c3aed",
+           NUM:"#b54708", PROPN:"#b42318", NEG:"#b54708" }[p] || "#667085";
+}
+function posBorder(p){
+  return { NOUN:"#abefc6", VERB:"#b2ddff", ADJ:"#fcceee", ADV:"#ddd6fe",
+           NUM:"#fedf89", PROPN:"#fecdca", NEG:"#fedf89" }[p] || "#e4e7ec";
+}
+
+let STATE = null;
+let currentView = "tokens";
+
+/* =========================================================
+   PIPELINE
+   ========================================================= */
+function runPipeline(){
+  const raw       = els.text.value;
+  const splitMode = els.split.value;
+  const valMode   = els.mode.value;
+  const useStop   = els.stop.checked;
+  const useStem   = els.lemmatize.checked;
+  const showPOS   = els.showPos.checked;
+
+  const segments = splitDocs(raw, splitMode);
+
+  const docs = segments.map(text => {
+    const rawTokens = tokenize(text);
+    const tokens = [];
+    rawTokens.forEach((w, i) => {
+      const isNeg  = PROTECTED_NEGATIONS.has(w);
+      const isStop = STOPWORDS.has(w) && !isNeg;   // negations never stop
+      const stem   = useStem ? lightStem(w) : w;
+      const pos    = guessPOS(w, i > 0 ? rawTokens[i-1] : undefined);
+      tokens.push({
+        raw: w, surface: useStem ? stem : w, isStop, isNeg, pos,
+        kept: !(useStop && isStop)   // negations always kept
+      });
+    });
+    const filtered = tokens.filter(t => t.kept).map(t => t.surface);
+    return { text, tokens, filtered };
+  }).filter(d => d.tokens.some(t => t.kept));
+
+  if (!docs.length){
+    STATE = null;
+    els.stats.innerHTML = "";
+    els.pipeline.innerHTML = "";
+    els.cleanOutput.innerHTML = `<span class="empty">Your cleaned text will appear here.</span>`;
+    els.keptChip.textContent = "0 words";
+    els.protectChip.textContent = "0 negations kept";
+    els.removedCount.textContent = "0";
+    els.view.innerHTML = `<div class="empty-state">Type something on the left to see the result.</div>`;
+    return;
+  }
+
+  const N = docs.length;
+  const keptTokensPerDoc = docs.map(d => d.tokens.filter(t => t.kept));
+  const totalKept = keptTokensPerDoc.reduce((s, t) => s + t.length, 0);
+
+  const totalCount = new Map();
+  const df         = new Map();
+  const docCounts  = keptTokensPerDoc.map(toks => {
+    const m = new Map();
+    toks.forEach(t => m.set(t.surface, (m.get(t.surface) || 0) + 1));
+    return m;
+  });
+  docCounts.forEach((m) => {
+    m.forEach((c, w) => totalCount.set(w, (totalCount.get(w) || 0) + c));
+    new Set([...m.keys()]).forEach(w => df.set(w, (df.get(w) || 0) + 1));
+  });
+
+  const idf = new Map();
+  df.forEach((d, w) => idf.set(w, Math.log((1 + N) / (1 + d)) + 1));
+
+  const fullVocab = [...totalCount.keys()].sort((a, b) =>
+    totalCount.get(b) - totalCount.get(a) || a.localeCompare(b));
+
+  const values = docs.map((_, di) => fullVocab.map(w => {
+    const c = docCounts[di].get(w) || 0;
+    if (valMode === "count")  return c;
+    if (valMode === "binary") return c > 0 ? 1 : 0;
+    return c ? (1 + Math.log(c)) * idf.get(w) : 0;
+  }));
+  if (valMode === "tfidf"){
+    values.forEach(row => {
+      let s = 0;
+      row.forEach(v => s += v * v);
+      s = Math.sqrt(s) || 1;
+      for (let i = 0; i < row.length; i++) row[i] /= s;
+    });
+  }
+
+  const totalRawTokens = docs.reduce((s, d) => s + d.tokens.length, 0);
+  const stopCount = docs.reduce((s, d) => s + d.tokens.filter(t => t.isStop).length, 0);
+  const uniqueRaw = new Set();
+  docs.forEach(d => d.tokens.forEach(t => uniqueRaw.add(t.raw)));
+  const removedCount = docs.reduce((s, d) => s + d.tokens.filter(t => !t.kept).length, 0);
+  const protectedCount = docs.reduce((s, d) => s + d.tokens.filter(t => t.isNeg && t.kept).length, 0);
+
+  STATE = {
+    docs, fullVocab, totalCount, df, idf, values, valMode,
+    stats: {
+      N, totalRawTokens, totalKept, stopCount, removedCount, protectedCount,
+      uniqueRaw: uniqueRaw.size, uniqueStem: fullVocab.length
+    },
+    showPOS, useStop
+  };
+
+  els.removedCount.textContent = removedCount;
+
+  renderCleanOutput();
+  renderStats();
+  renderPipeline();
+  renderView();
+}
+
+/* =========================================================
+   RENDER: CLEAN OUTPUT
+   ========================================================= */
+function renderCleanOutput(){
+  const { docs, useStop } = STATE;
+  if (!useStop){
+    els.cleanOutput.innerHTML = `<span class="empty">Stop-word removal is off. Enable the toggle to see cleaned text.</span>`;
+    els.keptChip.textContent = "0 words";
+    els.protectChip.textContent = "0 negations kept";
+    return;
+  }
+  const allTokens = docs.flatMap(d => d.tokens.filter(t => t.kept));
+  if (!allTokens.length){
+    els.cleanOutput.innerHTML = `<span class="empty">Everything was removed — the text contained only stop words.</span>`;
+    els.keptChip.textContent = "0 words";
+    els.protectChip.textContent = "0 negations kept";
+    return;
+  }
+  const protectedCount = allTokens.filter(t => t.isNeg).length;
+  els.protectChip.textContent = `${protectedCount} negation${protectedCount === 1 ? "" : "s"} kept`;
+
+  els.cleanOutput.innerHTML = allTokens
+    .map(t => `<span class="w${t.isNeg ? " neg" : ""}" title="${esc(t.raw)}${t.isNeg ? " · protected negation" : ""}">${esc(t.surface)}</span>`)
+    .join(" ");
+  els.keptChip.textContent = `${allTokens.length} word${allTokens.length === 1 ? "" : "s"}`;
+}
+
+/* =========================================================
+   RENDER: STATS
+   ========================================================= */
+function renderStats(){
+  const s = STATE.stats;
+  els.stats.innerHTML = `
+    <div class="stat"><b>${s.N}</b><span>Sentences</span></div>
+    <div class="stat"><b>${s.totalRawTokens.toLocaleString()}</b><span>Raw tokens</span></div>
+    <div class="stat amber"><b>${s.protectedCount.toLocaleString()}</b><span>Negations kept</span></div>
+    <div class="stat green"><b>${s.totalKept.toLocaleString()}</b><span>Kept</span></div>
+    <div class="stat red"><b>${s.removedCount.toLocaleString()}</b><span>Removed</span></div>`;
+}
+
+/* =========================================================
+   RENDER: PIPELINE
+   ========================================================= */
+function renderPipeline(){
+  const s = STATE.stats;
+  const stages = [
+    ["1 · segmentation", `${s.N} units`],
+    ["2 · tokenization", `${s.totalRawTokens} tokens`],
+    ["3 · stop words",   `−${s.removedCount}`],
+    ["4 · negations",    `🔒 ${s.protectedCount} kept`],
+    ["5 · stemming",     `${s.uniqueStem} vocab`],
+    ["6 · vectorization", `${s.N} × ${s.uniqueStem}`],
+  ];
+  els.pipeline.innerHTML = stages.map(([k, v]) =>
+    `<div class="stage-row"><span class="k">${esc(k)}</span><span class="v">${esc(v)}</span></div>`
+  ).join("");
+}
+
+/* =========================================================
+   RENDER: VIEWS
+   ========================================================= */
+function renderView(){
+  if (!STATE) return;
+  if (currentView === "tokens")   renderTokens();
+  if (currentView === "filtered") renderFiltered();
+  if (currentView === "matrix")   renderMatrix();
+  if (currentView === "vocab")    renderVocab();
+  if (currentView === "removed")  renderRemoved();
+  if (currentView === "stoplist") renderStoplist();
+}
+
+/* ---------- tokens & POS ---------- */
+function renderTokens(){
+  const { docs, showPOS } = STATE;
+  let html = "";
+
+  docs.forEach((doc, di) => {
+    const num = String(di + 1).padStart(2, "0");
+    const keptTokens    = doc.tokens.filter(t => t.kept);
+    const removedTokens = doc.tokens.filter(t => !t.kept);
+
+    html += `<div class="sentence">
+      <div class="head">
+        <span class="num">${num}</span>
+        <span class="txt">${esc(doc.text)}</span>
+        <span class="meta">${doc.tokens.length} tok · ${keptTokens.length} kept</span>
+      </div>
+      <div class="tokline">`;
+
+    doc.tokens.forEach(t => {
+      const isKeptNeg = t.kept && t.isNeg;
+      const cls = isKeptNeg ? "tok neg" : (t.kept ? "tok" : "tok stop");
+      const posTag = showPOS ? `<span class="pos">${t.pos}</span>` : "";
+      const title = `${t.raw}${t.surface !== t.raw ? " → " + t.surface : ""} · ${t.pos}${t.isNeg ? " · protected negation" : (t.isStop ? " · stopword" : "")}`;
+      html += `<span class="${cls}" data-pos="${t.pos}" title="${esc(title)}">${esc(t.surface)}${posTag}</span>`;
+    });
+    html += `</div>`;
+
+    if (removedTokens.length){
+      html += `<div class="removedline"><span class="lbl">Removed</span>`;
+      removedTokens.forEach(t => {
+        const posTag = showPOS ? `<span class="pos">${t.pos}</span>` : "";
+        html += `<span class="tok removed" data-pos="${t.pos}">${esc(t.surface)}${posTag}</span>`;
+      });
+      html += `</div>`;
+    }
+    html += `</div>`;
+  });
+
+  html += `<div class="poslegend">
+    ${["NOUN","VERB","ADJ","ADV","DET","ADP","PRON","CONJ","AUX","NUM","PROPN"].map(p =>
+      `<span class="lg" style="color:${posColor(p)};border-color:${posBorder(p)}">${p}</span>`).join("")}
+    <span class="lg removed">removed</span>
+    <span class="lg neg">🔒 protected negation</span>
+  </div>`;
+
+  els.view.innerHTML = html;
+}
+
+/* ---------- filtered view ---------- */
+function renderFiltered(){
+  const { docs, useStop } = STATE;
+  if (!useStop){
+    els.view.innerHTML = `<div class="empty-state">Stop-word removal is <b>off</b>.<br>Enable the toggle to see filtered text.</div>`;
+    return;
+  }
+  if (!docs.some(d => d.filtered.length)){
+    els.view.innerHTML = `<div class="empty-state">No words survived the filter.</div>`;
+    return;
+  }
+
+  let html = "";
+  docs.forEach((doc, di) => {
+    const num = String(di + 1).padStart(2, "0");
+    const removed = doc.tokens.filter(t => !t.kept);
+    html += `<div class="filtered-sentence">
+      <div class="head">
+        <span class="num">${num}</span>
+        <span class="meta">${doc.filtered.length} kept${removed.length ? ` · ${removed.length} removed` : ""}</span>
+      </div>
+      <div class="orig">${esc(doc.text)}</div>
+      <div class="arrow">↓ cleaned</div>
+      <div class="out ${doc.filtered.length ? "" : "empty"}">${
+        doc.filtered.length
+          ? doc.tokens.filter(t => t.kept).map(t =>
+              `<span class="${t.isNeg ? "neg" : ""}">${esc(t.surface)}</span>`
+            ).join(" ")
+          : "(nothing left)"
+      }</div>
+      ${removed.length ? `<div class="removed">removed: ${removed.map(t => `<span class="rw">${esc(t.surface)}</span>`).join(" ")}</div>` : ""}
+    </div>`;
+  });
+  els.view.innerHTML = html;
+}
+
+/* ---------- matrix ---------- */
+function renderMatrix(){
+  const { docs, fullVocab, totalCount, df, values, valMode, docs: allDocs } = STATE;
+
+  const limit = 60;
+  const order = fullVocab.map((_, i) => i).slice(0, limit);
+  let max = 0;
+  values.forEach(row => order.forEach(i => { max = Math.max(max, row[i]); }));
+
+  let head = `<tr><th class="corner">Sentence</th>`;
+  order.forEach(i => {
+    const w = fullVocab[i];
+    const isNeg = PROTECTED_NEGATIONS.has(w);
+    head += `<th ${isNeg ? 'class="protect"' : ""} title="${esc(w)} · ${totalCount.get(w)}× in ${df.get(w)} doc(s)${isNeg ? " · protected negation" : ""}">
+      <span class="w">${esc(w)}${isNeg ? " 🔒" : ""}</span><span class="c">${totalCount.get(w)}×</span></th>`;
+  });
+  head += `</tr>`;
+
+  let body = "";
+  docs.forEach((doc, di) => {
+    const num = String(di + 1).padStart(2, "0");
+    body += `<tr>
+      <th class="corner"><span class="idx">${num}</span><span class="preview" title="${esc(doc.text)}">${esc(doc.text)}</span></th>`;
+    order.forEach(i => {
+      const v = values[di][i];
+      body += `<td style="${cellStyle(v, max)}" ${v === 0 ? 'class="zero"' : ""}>${fmtNum(v, valMode)}</td>`;
+    });
+    body += `</tr>`;
+  });
+
+  let foot = `<tr><th class="corner">Σ Total</th>`;
+  order.forEach(i => {
+    let sum = 0;
+    values.forEach(row => sum += row[i]);
+    foot += `<td>${valMode === "tfidf" ? sum.toFixed(2) : sum}</td>`;
+  });
+  foot += `</tr>`;
+
+  const note = fullVocab.length > order.length
+    ? `<p style="font-size:12px;color:var(--muted);margin:10px 0 0">Showing ${order.length} of ${fullVocab.length} terms — the most frequent.</p>` : "";
+
+  const modeLabel = valMode === "count" ? "Raw counts"
+                  : valMode === "binary" ? "Presence (0/1)" : "TF-IDF weights";
+
+  els.view.innerHTML = `
+    <div class="tablewrap">
+      <table class="matrix">
+        <thead>${head}</thead>
+        <tbody>${body}</tbody>
+        <tfoot>${foot}</tfoot>
+      </table>
+    </div>
+    <div class="legend">
+      <span>Weight</span><span class="bar"></span>
+      <span>0 → ${valMode === "tfidf" ? max.toFixed(2) : max} · ${modeLabel}</span>
+      <span class="protect-legend">🔒 protected negation</span>
+    </div>
+    ${note}
+    <div class="controls" style="margin-top:14px">
+      <button class="btn btn-ghost btn-sm" id="dl">Download CSV</button>
+      <button class="btn btn-ghost btn-sm" id="cp">Copy matrix</button>
+    </div>`;
+
+  $("dl").addEventListener("click", downloadCSV);
+  $("cp").addEventListener("click", copyMatrix);
+}
+
+/* ---------- vocabulary ---------- */
+function renderVocab(){
+  const { fullVocab, totalCount, df, idf } = STATE;
+  const rows = fullVocab.map(w => {
+    let pos = "—";
+    for (const d of STATE.docs){
+      const t = d.tokens.find(t => t.surface === w);
+      if (t){ pos = t.pos; break; }
+    }
+    return { w, c: totalCount.get(w), d: df.get(w), idf: idf.get(w).toFixed(3), pos,
+             isNeg: PROTECTED_NEGATIONS.has(w) };
+  });
+
+  const head = `<tr><th class="corner">Term</th><th>POS</th><th>Count</th><th>Docs</th><th>IDF</th></tr>`;
+  const body = rows.map(r => `<tr>
+    <th class="corner"><span class="preview" style="font-size:12.5px;color:${r.isNeg ? 'var(--amber)' : 'var(--text)'};${r.isNeg ? 'font-weight:700' : ''}">${esc(r.w)}${r.isNeg ? " 🔒" : ""}</span></th>
+    <td style="color:${posColor(r.pos)};font-weight:700;font-size:10px">${r.pos}</td>
+    <td>${r.c}</td>
+    <td>${r.d}</td>
+    <td>${r.idf}</td>
+  </tr>`).join("");
+
+  els.view.innerHTML = `
+    <div class="tablewrap">
+      <table class="matrix"><thead>${head}</thead><tbody>${body}</tbody></table>
+    </div>
+    <p style="font-size:12px;color:var(--muted);margin:10px 0 0">${rows.length} unique stems in the current vocabulary.</p>`;
+}
+
+/* ---------- removed view ---------- */
+function renderRemoved(){
+  const { docs, showPOS } = STATE;
+  const totalRemoved = docs.reduce((s, d) => s + d.tokens.filter(t => !t.kept).length, 0);
+
+  if (totalRemoved === 0){
+    els.view.innerHTML = `<div class="empty-state">No stop words were removed.<br>Every token survived the filter — including all negations.</div>`;
+    return;
+  }
+
+  const freq = new Map();
+  docs.forEach(d => d.tokens.forEach(t => {
+    if (!t.kept) freq.set(t.surface, (freq.get(t.surface) || 0) + 1);
+  }));
+  const ranked = [...freq.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+
+  let html = `<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
+    <span style="font-size:11.5px;font-weight:600;padding:5px 11px;border-radius:7px;
+      background:var(--red-soft);color:var(--red);border:1px solid #fecdca">
+      ${totalRemoved} token${totalRemoved === 1 ? "" : "s"} removed</span>
+    <span style="font-size:11.5px;font-weight:600;padding:5px 11px;border-radius:7px;
+      background:var(--bg-soft);color:var(--muted);border:1px solid var(--border)">
+      ${ranked.length} unique</span>
+    <span style="font-size:11.5px;font-weight:600;padding:5px 11px;border-radius:7px;
+      background:var(--amber-soft);color:var(--amber);border:1px solid #fedf89">
+      🔒 negations protected</span>
+  </div>`;
+
+  html += `<h3 style="font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 10px">Frequency</h3>`;
+  html += `<div style="margin-bottom:18px">`;
+  ranked.slice(0, 12).forEach(([w, c]) => {
+    const pct = Math.round((c / ranked[0][1]) * 100);
+    html += `<div style="display:grid;grid-template-columns:90px 1fr 28px;gap:10px;align-items:center;margin-bottom:6px">
+      <span style="font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--red);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(w)}</span>
+      <div style="height:6px;border-radius:99px;background:var(--bg-softer);overflow:hidden">
+        <div style="height:100%;width:${pct}%;border-radius:99px;background:var(--red)"></div>
+      </div>
+      <span style="text-align:right;color:var(--red);font-family:'JetBrains Mono',monospace;font-size:11px">${c}</span>
+    </div>`;
+  });
+  html += `</div>`;
+
+  html += `<h3 style="font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 10px">Per sentence</h3>`;
+  docs.forEach((doc, di) => {
+    const removed = doc.tokens.filter(t => !t.kept);
+    if (!removed.length) return;
+    const num = String(di + 1).padStart(2, "0");
+    html += `<div class="sentence">
+      <div class="head">
+        <span class="num">${num}</span>
+        <span class="txt" style="font-size:13px">${esc(doc.text)}</span>
+        <span class="meta" style="color:var(--red)">${removed.length} removed</span>
+      </div>
+      <div class="tokline">
+        ${removed.map(t => {
+          const posTag = showPOS ? `<span class="pos">${t.pos}</span>` : "";
+          return `<span class="tok removed" data-pos="${t.pos}">${esc(t.surface)}${posTag}</span>`;
+        }).join("")}
+      </div>
+    </div>`;
+  });
+
+  els.view.innerHTML = html;
+}
+
+/* ---------- stop list ---------- */
+function renderStoplist(){
+  const removed = [];
+  const seen = new Set();
+  STATE.docs.forEach(d => d.tokens.forEach(t => {
+    if (!t.kept && !seen.has(t.raw)){ seen.add(t.raw); removed.push(t.raw); }
+  }));
+  removed.sort();
+  const all = [...STOPWORDS].sort();
+  const negs = [...PROTECTED_NEGATIONS].sort();
+
+  els.view.innerHTML = `
+    <h3 style="font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--amber);margin:0 0 10px">
+      🔒 Protected negations — always kept (${negs.length})
+    </h3>
+    <div class="chipwrap" style="margin-bottom:18px">
+      ${negs.map(w => `<span class="chip-stop neg">${esc(w)}</span>`).join("")}
+    </div>
+
+    <h3 style="font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 10px">
+      Removed in this text (${removed.length})
+    </h3>
+    <div class="chipwrap" style="margin-bottom:18px">
+      ${removed.length
+        ? removed.map(w => `<span class="chip-rem">${esc(w)}</span>`).join("")
+        : `<span style="color:var(--muted);font-size:13px">none</span>`}
+    </div>
+
+    <h3 style="font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 10px">
+      Full stop list (${all.length})
+    </h3>
+    <div class="chipwrap">
+      ${all.map(w => `<span class="chip-stop">${esc(w)}</span>`).join("")}
+    </div>`;
+}
+
+/* =========================================================
+   EXPORT
+   ========================================================= */
+function buildTableText(){
+  const { docs, fullVocab, values, valMode } = STATE;
+  const lines = [];
+  lines.push(["sentence", ...fullVocab].join(","));
+  docs.forEach((d, di) => {
+    const row = [`"${d.text.replace(/"/g, '""')}"`,
+      ...fullVocab.map((_, i) => fmtNum(values[di][i], valMode))];
+    lines.push(row.join(","));
+  });
+  return lines.join("\n");
+}
+function downloadCSV(){
+  const blob = new Blob([buildTableText()], { type: "text/csv;charset=utf-8" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "cleantext-matrix.csv";
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1500);
+}
+async function copyMatrix(){
+  const txt = buildTableText();
+  try { await navigator.clipboard.writeText(txt); showFlash("Matrix copied"); }
+  catch {
+    const ta = document.createElement("textarea");
+    ta.value = txt; document.body.appendChild(ta); ta.select();
+    document.execCommand("copy"); ta.remove();
+    showFlash("Matrix copied");
+  }
+}
+
+/* ---------- copy clean text ---------- */
+async function copyClean(){
+  if (!STATE) return;
+  const { docs, useStop } = STATE;
+  if (!useStop){ showFlash("Enable stop-word removal first"); return; }
+  const text = docs.map(d => d.filtered.join(" ")).filter(Boolean).join(" ");
+  try { await navigator.clipboard.writeText(text); showFlash("Clean text copied"); }
+  catch {
+    const ta = document.createElement("textarea");
+    ta.value = text; document.body.appendChild(ta); ta.select();
+    document.execCommand("copy"); ta.remove();
+    showFlash("Clean text copied");
+  }
+}
+
+function showFlash(msg){
+  const f = $("flash");
+  f.textContent = msg;
+  f.classList.add("show");
+  clearTimeout(f._t);
+  f._t = setTimeout(() => f.classList.remove("show"), 1600);
+}
+
+/* =========================================================
+   EVENTS
+   ========================================================= */
+let timer = null;
+function debounced(){ clearTimeout(timer); timer = setTimeout(runPipeline, 140); }
+
+els.text.addEventListener("input", debounced);
+["split", "mode", "stop", "lemmatize", "showPos"].forEach(id =>
+  els[id].addEventListener("change", runPipeline));
+els.run.addEventListener("click", runPipeline);
+els.copyClean.addEventListener("click", copyClean);
+
+els.tabs.addEventListener("click", e => {
+  const tab = e.target.closest(".tab");
+  if (!tab) return;
+  [...els.tabs.children].forEach(t => t.classList.remove("on"));
+  tab.classList.add("on");
+  currentView = tab.dataset.view;
+  renderView();
+});
+
+document.addEventListener("keydown", e => {
+  if ((e.metaKey || e.ctrlKey) && e.key === "Enter"){
+    e.preventDefault();
+    runPipeline();
+  }
+});
+
+/* first paint */
+runPipeline();
+</script>
+</body>
+</html>
