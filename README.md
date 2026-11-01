@@ -31,10 +31,10 @@ CleanText is a project created to make text management simpler and more accessib
 ## 📌 Contributing
 
 Suggestions, feedback, and contributions are welcome!
+Download the app to try.
 
-## 📄 License
-
-Add your chosen license here.
+Thanks! Don't forget liking the app!❤️💕
+Ibtihal. ☺️
 
 ---
 
