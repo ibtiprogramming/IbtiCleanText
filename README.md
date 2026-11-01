@@ -31,9 +31,12 @@ CleanText is a project created to make text management simpler and more accessib
 ## 📌 Contributing
 
 Suggestions, feedback, and contributions are welcome!
-Download the app to try.
+
+👉 Download the latest release to try it.
+
 ⭐ If this saved you time, a star helps others find it.
 👀 Watch releases to get notified of new versions.
+
 Ibtihal. ☺️
 
 ---
