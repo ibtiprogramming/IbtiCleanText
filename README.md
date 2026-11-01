@@ -1,46 +1,29 @@
 # ✨ CleanText
 
-**A simple, clean, and user-friendly text-cleaning application.**
-
-Welcome to CleanText! 💗
-
-CleanText is a project designed to make working with text easier, cleaner, and more organized. Its goal is to provide a simple experience for users who want to improve and manage their text without unnecessary complications.
+**Paste text, get the words that matter most.** CleanText ranks terms by importance using TF-IDF — so you instantly see which words carry the most weight.
 
 ## 🌸 Features
+- Rank words by importance using TF-IDF
+- Clean, beginner-friendly interface
+- Paste text and get organized, ranked results instantly
 
-- Simple and user-friendly interface
-- Clean and organized text experience
-- Easy to use
-- Designed with simplicity in mind
-
-## 🚀 Getting Started
-
-1. Clone this repository.
-2. Open the project.
-3. Follow the installation instructions.
-4. Start using CleanText!
+## 🚀 How to Use
+1. Open the app
+2. Paste your text
+3. See the ranked words and their scores
 
 ## 🛠️ Built With
-
-Add the programming languages, frameworks, and tools used in this project.
-
-## 💡 About the Project
-
-CleanText is a project created to make text management simpler and more accessible.
+- HTML
+- CSS
+- JavaScript
 
 ## 📌 Contributing
-
-Suggestions, feedback, and contributions are welcome!
-
-👉 Download the latest release to try it.
+Suggestions, feedback, and contributions are welcome.
 
 ⭐ If this saved you time, a star helps others find it.
-👀 Watch releases to get notified of new versions.
+👀 **Release notifications:** click **Watch → Custom → Releases**
 
-Ibtihal. ☺️
+## 💗 Thank You
+Thank you for checking out CleanText! Thanks to everyone who tried it, gave feedback, or left a star — it means a lot. ☺️
 
----
-
-Made with 💗 and a little creativity.
-
-**CleanText — Keep your text clean.**
+— Ibtihal
