@@ -453,6 +453,22 @@
   }
   .copy-flash.show{opacity:1;transform:translateX(-50%) translateY(0)}
 </style>
+    .star-badge {
+    text-decoration: none;
+    background: linear-gradient(135deg,#fffbeb,#fef3c7);
+    border: 1px solid #fcd34d;
+    color: #b45309;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+  }
+  .star-badge::before {
+    display: none; 
+  }
+  .star-badge:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+    background: linear-gradient(135deg,#fef3c7,#fde68a);
+  }
 </head>
 <body>
 <div class="wrap">
@@ -463,7 +479,7 @@
       <h1>CleanText</h1>
       <p>Strip the noise. Keep the signal.</p>
     </div>
-    <span class="badge">100% in your browser</span>
+<a href="https://github.com/YOUR-USERNAME/YOUR-REPO-NAME" target="_blank" class="badge star-badge">⭐ Star on GitHub</a>
   </header>
 
   <div class="grid">
