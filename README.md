@@ -1,6 +1,7 @@
 <div align="center">
 
 <img src="assets/cleantxt-banner.png" alt="CleanText — Strip the noise. Keep the signal." width="100%">
+<img width="1280" height="640" alt="cleantxt-banner" src="https://github.com/user-attachments/assets/eca591cf-440d-4993-a7fd-ee0aef7c867a" />
 
 # CleanText
 
